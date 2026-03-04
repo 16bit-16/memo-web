@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>apah</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <header>
+    <nav>
+      <div class="nav-left">
+        <ul>
+          <li><a href="index.html">홈</a></li>
+        </ul>
+      </div>
+      
+      <div class="nav-center">
+        <select class="theme-toggle" onchange="changeTheme(this.value)" id="themeSelect">
+          <option value="dark">다크</option>
+          <option value="light">라이트</option>
+          <option value="cyberpunk">사이버펑크</option>
+          <option value="dracula">드라큘라</option>
+          <option value="terminal">터미널</option>
+          <option value="sunset">노을</option>
+        </select>
+      </div>
+
+      <div class="nav-right">
+        <ul>
+          <li><a href="login.html" id="loginLink">로그인</a></li>
+          <li><a href="#" id="logoutLink" style="display: none;">로그아웃</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <div class="container">
+    <aside>
+      <ul class="list" id="memoList">
+        <li class="default-text">apah.kro.kr 에 오신것을 환영합니다</li>
+        <li class="default-text">로그인 후 글을 추가해주세요</li>
+      </ul>
+    </aside>
+    <button class="memos" id="addMemoBtn">+</button>
+  </div>
+
+  <div id="memoModal" class="modal">
+    <div class="modal-content">
+      <h2>메모 작성</h2>
+      <input type="date" id="memoDate">
+      <textarea id="memoText" rows="5" placeholder="메모 내용"></textarea>
+      <button onclick="saveMemo()">저장</button>
+      <button onclick="closeModal()">취소</button>
+    </div>
+  </div>
+  <script>
+    const defaultText = document.querySelectorAll('.default-text');
+
+    function rainbowText() {
+      let r = 255, g = 0, b = 0;
+      let step = 0;
+
+      setInterval(() => {
+        defaultText.forEach(text => {
+          text.style.color = `rgb(${r}, ${g}, ${b})`;
+        });
+
+        // 빨강 → 노랑
+        if (step === 0) {
+          g++;
+          if (g === 255) step = 1;
+        }
+        // 노랑 → 초록
+        else if (step === 1) {
+          r--;
+          if (r === 0) step = 2;
+        }
+        // 초록 → 청록
+        else if (step === 2) {
+          b++;
+          if (b === 255) step = 3;
+        }
+        // 청록 → 파랑
+        else if (step === 3) {
+          g--;
+          if (g === 0) step = 4;
+        }
+        // 파랑 → 자주
+        else if (step === 4) {
+          r++;
+          if (r === 255) step = 5;
+        }
+        // 자주 → 빨강
+        else if (step === 5) {
+          b--;
+          if (b === 0) step = 0;
+        }
+      }, 5);
+    }
+
+    rainbowText();
+
+    const currentTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    document.getElementById('themeSelect').value = currentTheme;
+
+    function changeTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+    }
+
+    let currentUser = localStorage.getItem('currentUser');
+
+    window.onload = function () {
+      if (currentUser) {
+        document.getElementById('loginLink').style.display = 'none';
+        document.getElementById('logoutLink').style.display = 'block';
+        loadMemos();
+      } else {
+        document.getElementById('addMemoBtn').style.display = 'none';
+      }
+
+      document.getElementById('memoDate').value = new Date().toISOString().split('T')[0];
+    };
+
+    document.getElementById('logoutLink').onclick = function () {
+      localStorage.removeItem('currentUser');
+      location.reload();
+    };
+
+    function loadMemos() {
+      fetch(`http://localhost:3000/api/memos/${currentUser}`)
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById('memoList');
+
+          if (data.length === 0) {
+            list.innerHTML = '<li id="default-text">아무 글도 작성되지 않았어요.</li>';
+            return;
+          }
+
+          list.innerHTML = '';
+          data.forEach(memo => {
+            const date = new Date(memo.date).toLocaleDateString('ko-KR');
+            list.innerHTML += `
+              <li class="memo-item">
+                <div class="memo-header">
+                  <div class="memo-date">${date}</div>
+                  <button class="delete-btn" onclick="deleteMemo(${memo.memo_id})">삭제</button>
+                </div>
+                <div class="memo-text">${memo.text}</div>
+              </li>
+            `;
+          });
+        })
+        .catch(err => {
+          console.error('메모 불러오기 실패:', err);
+        });
+    }
+
+    document.getElementById('addMemoBtn').onclick = function () {
+      document.getElementById('memoModal').style.display = 'block';
+    };
+
+    function closeModal() {
+      document.getElementById('memoModal').style.display = 'none';
+      document.getElementById('memoText').value = '';
+    }
+
+    function saveMemo() {
+      const text = document.getElementById('memoText').value;
+      const date = document.getElementById('memoDate').value;
+
+      if (!text) {
+        alert('메모 내용을 입력하세요');
+        return;
+      }
+
+      fetch('http://localhost:3000/api/memos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: currentUser,
+          text: text,
+          date: date
+        })
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log('메모 저장 성공:', data);
+          closeModal();
+          loadMemos();
+        })
+        .catch(err => {
+          console.error('메모 저장 실패:', err);
+          alert('메모 저장에 실패했습니다');
+        });
+    }
+
+    function deleteMemo(memoId) {
+      if (!confirm('정말로 이 메모를 삭제하시겠습니까?')) return;
+      fetch(`http://localhost:3000/api/memos/${memoId}`, {
+        method: 'DELETE'
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log('메모 삭제 성공:', data);
+          loadMemos();
+        })
+        .catch(err => {
+          console.error('메모 삭제 실패:', err);
+          alert('메모 삭제에 실패했습니다');
+        });
+    }
+  </script>
+</body>
+
+</html>

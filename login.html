@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>apah - 로그인</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <header>
+    <nav>
+      <ul>
+        <li><a href="index.html">홈</a></li>
+      </ul>
+      <ul>
+        <li><a href="login.html" id="loginLink">로그인</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="login-container">
+    <div class="login-box">
+      <h2>로그인</h2>
+      <input type="text" id="userId" placeholder="아이디">
+      <input type="password" id="userPw" placeholder="비밀번호">
+      <button onclick="login()">로그인</button>
+      <p class="signup-link">
+        계정이 없으신가요? <a href="signup.html">회원가입</a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const currentTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    document.getElementById('themeSelect').value = currentTheme;
+
+    function changeTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+    }
+
+    function login() {
+      const id = document.getElementById('userId').value;
+      const pw = document.getElementById('userPw').value;
+
+      console.log('입력값:', id, pw); // 1. 입력값 확인
+
+      if (!id || !pw) {
+        alert('아이디와 비밀번호를 입력하세요');
+        return;
+      }
+
+      console.log('fetch 시작'); // 2. fetch 시작 확인
+
+      fetch('http://localhost:3000/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, pw })
+      })
+        .then(res => {
+          console.log('응답 상태:', res.status); // 3. 응답 상태 확인
+          return res.json();
+        })
+        .then(data => {
+          console.log('서버 응답:', data); // 4. 서버 응답 확인
+          if (data.success) {
+            localStorage.setItem('currentUser', id);
+            alert('로그인 성공!');
+            location.href = 'index.html';
+          } else {
+            alert('아이디 또는 비밀번호가 틀렸습니다');
+          }
+        })
+        .catch(err => {
+          console.error('로그인 실패:', err); // 5. 에러 확인
+          alert('로그인에 실패했습니다: ' + err.message);
+        });
+    }
+
+    // Enter 키로 로그인
+    document.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        login();
+      }
+    });
+  </script>
+</body>
+
+</html>
