@@ -1,1 +1,11 @@
-styles.css.map
+# SCSS 컴파일 결과물
+*.css.map
+
+# Node modules (나중을 위해)
+node_modules/
+
+# 환경변수
+.env
+
+# OS
+.DS_Store
