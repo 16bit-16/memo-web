@@ -42,6 +42,8 @@
       localStorage.setItem('theme', theme);
     }
 
+    const API_URL = 'https://api.apah.site';
+
     function login() {
       const id = document.getElementById('userId').value;
       const pw = document.getElementById('userPw').value;
@@ -55,7 +57,7 @@
 
       console.log('fetch 시작'); // 2. fetch 시작 확인
 
-      fetch('http://localhost:3000/api/login', {
+      fetch(`${API_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, pw })

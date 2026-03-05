@@ -17,7 +17,7 @@
           <li><a href="index.html">홈</a></li>
         </ul>
       </div>
-      
+
       <div class="nav-center">
         <select class="theme-toggle" onchange="changeTheme(this.value)" id="themeSelect">
           <option value="dark">다크</option>
@@ -113,6 +113,7 @@
     }
 
     let currentUser = localStorage.getItem('currentUser');
+    const API_URL = 'https://api.apah.site'
 
     window.onload = function () {
       if (currentUser) {
@@ -132,7 +133,7 @@
     };
 
     function loadMemos() {
-      fetch(`http://localhost:3000/api/memos/${currentUser}`)
+      fetch(`${API_URL}/api/memos/${currentUser}`)
         .then(res => res.json())
         .then(data => {
           const list = document.getElementById('memoList');
@@ -179,7 +180,7 @@
         return;
       }
 
-      fetch('http://localhost:3000/api/memos', {
+      fetch(`${API_URL}/api/memos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -202,7 +203,7 @@
 
     function deleteMemo(memoId) {
       if (!confirm('정말로 이 메모를 삭제하시겠습니까?')) return;
-      fetch(`http://localhost:3000/api/memos/${memoId}`, {
+      fetch(`${API_URL}/api/memos/${memoId}`, {
         method: 'DELETE'
       })
         .then(res => res.json())

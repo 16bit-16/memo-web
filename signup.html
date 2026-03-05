@@ -42,6 +42,8 @@
       localStorage.setItem('theme', theme);
     }
 
+    const API_URL = 'https://api.apah.site';
+
     function signup() {
       const id = document.getElementById('userId').value;
       const pw = document.getElementById('userPw').value;
@@ -61,7 +63,7 @@
         return;
       }
 
-      fetch('http://localhost:3000/api/signup', {
+      fetch(`https://${API_URL}/api/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, pw })
