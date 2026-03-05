@@ -33,6 +33,8 @@
   </div>
 
   <script>
+    const API_URL = 'https://api.apah.site'
+
     const currentTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', currentTheme);
     document.getElementById('themeSelect').value = currentTheme;
@@ -41,8 +43,6 @@
       document.documentElement.setAttribute('data-theme', theme);
       localStorage.setItem('theme', theme);
     }
-
-    const API_URL = 'https://api.apah.site';
 
     function signup() {
       const id = document.getElementById('userId').value;
@@ -63,7 +63,7 @@
         return;
       }
 
-      fetch(`https://${API_URL}/api/signup`, {
+      fetch(`${API_URL}/api/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, pw })

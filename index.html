@@ -40,7 +40,7 @@
   <div class="container">
     <aside>
       <ul class="list" id="memoList">
-        <li class="default-text">apah.kro.kr 에 오신것을 환영합니다</li>
+        <li class="default-text">apah.site 에 오신것을 환영합니다</li>
         <li class="default-text">로그인 후 글을 추가해주세요</li>
       </ul>
     </aside>
@@ -57,6 +57,7 @@
     </div>
   </div>
   <script>
+    const API_URL = 'https://api.apah.site'
     const defaultText = document.querySelectorAll('.default-text');
 
     function rainbowText() {
@@ -113,7 +114,6 @@
     }
 
     let currentUser = localStorage.getItem('currentUser');
-    const API_URL = 'https://api.apah.site'
 
     window.onload = function () {
       if (currentUser) {
